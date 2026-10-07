@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null && request.auth.token.email == "vicky@manti.com";
+    }
+    match /carts/{userId}/items/{itemId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /wishlists/{userId}/items/{itemId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /settings/promo {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null && request.auth.token.email == "vicky@manti.com";
+    }
+    match /activeUsers/{userId} {
+      allow read: if request.auth != null && request.auth.token.email == "vicky@manti.com";
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == "vicky@manti.com";
+    }
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read, update: if request.auth != null && (
+        request.auth.token.email == "vicky@manti.com" ||
+        resource.data.userId == request.auth.uid
+      );
+      allow delete: if request.auth != null && request.auth.token.email == "vicky@manti.com";
+    }
+    match /customerNotes/{doc} {
+      allow read, write: if request.auth != null &&
+                           request.auth.token.email == "vicky@manti.com" &&
+                           resource.data.adminEmail == request.auth.token.email;
+      allow create: if request.auth != null &&
+                       request.auth.token.email == "vicky@manti.com" &&
+                       request.resource.data.adminEmail == request.auth.token.email &&
+                       request.resource.data.name is string &&
+                       request.resource.data.phone is string &&
+                       request.resource.data.content is string &&
+                       request.resource.data.filename is string &&
+                       request.resource.data.createdAt is timestamp &&
+                       request.resource.data.updatedAt is timestamp;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

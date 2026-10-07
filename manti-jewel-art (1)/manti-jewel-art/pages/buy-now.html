@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Buy Now — MANTI jewel art</title>
+  <link rel="icon" href="https://i.postimg.cc/kg4L7Hw0/Asset-13-Photoroom-Photoroom.png" type="image/png" sizes="64x64" />
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/kg4L7Hw0/Asset-13-Photoroom-Photoroom.png" sizes="180x180" />
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Rajdhani:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <style>
+    /* ── Buy Now Page Styles ─────────────────────── */
+    .buynow-hero {
+      margin-top: 68px;
+      background: linear-gradient(135deg, var(--ink) 0%, #1a1410 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 0 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .buynow-hero::before {
+      content:'';
+      position: absolute;
+      top: -100px; right: -80px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,175,55,.08) 0%, transparent 70%);
+    }
+    .buynow-hero-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .buynow-step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(212,175,55,.2);
+      color: var(--gold2);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .buynow-hero h1 {
+      font-family: var(--f1);
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 400;
+      color: var(--chrome);
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .buynow-hero h1 em {
+      font-style: italic;
+      color: var(--gold2);
+    }
+    .buynow-hero p {
+      font-size: .9rem;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Steps bar */
+    .buynow-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .bstep {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .bstep-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem;
+      font-weight: 700;
+      transition: all .3s;
+    }
+    .bstep.done .bstep-num {
+      background: var(--gold2);
+      color: var(--black);
+    }
+    .bstep.active .bstep-num {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: var(--black);
+      box-shadow: 0 0 16px var(--gold-glow);
+    }
+    .bstep.pending .bstep-num {
+      background: var(--surface);
+      color: var(--muted);
+    }
+    .bstep-label {
+      font-size: .72rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .bstep.done .bstep-label, .bstep.active .bstep-label { color: var(--chrome); }
+    .bstep.pending .bstep-label { color: var(--muted); }
+    .bstep-line {
+      width: 60px;
+      height: 2px;
+      background: var(--border);
+      margin: 0 8px;
+      margin-bottom: 24px;
+    }
+    .bstep-line.done { background: var(--gold2); }
+
+    /* Main layout */
+    .buynow-main {
+      padding: 40px 0 80px;
+    }
+    .buynow-grid {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .buynow-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Product card (left) */
+    .bn-product-card {
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: var(--r);
+      overflow: hidden;
+      box-shadow: var(--sh);
+    }
+    .bn-product-card-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .bn-product-card-header h3 {
+      font-family: var(--f1);
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--chrome);
+    }
+    .bn-product-card-header .step-circle {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: var(--black);
+      font-size: .75rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .bn-product-preview {
+      padding: 20px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .bn-product-img {
+      width: 96px; height: 96px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--border2);
+      flex-shrink: 0;
+    }
+    .bn-product-info { flex: 1; }
+    .bn-product-cat {
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--gold2);
+      margin-bottom: 4px;
+    }
+    .bn-product-name {
+      font-family: var(--f1);
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--chrome);
+      margin-bottom: 6px;
+    }
+    .bn-product-meta {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .bn-price-breakdown {
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      overflow: hidden;
+    }
+    .bn-price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      font-size: .8rem;
+    }
+    .bn-price-row + .bn-price-row {
+      border-top: 1px solid var(--border);
+    }
+    .bn-price-row span:first-child { color: var(--muted); }
+    .bn-price-row span:last-child { font-weight: 600; color: var(--chrome); }
+    .bn-price-row.total {
+      background: var(--gold-dim);
+      border-top: 1px solid rgba(212,175,55,.2) !important;
+    }
+    .bn-price-row.total span:first-child { color: var(--gold2); font-weight: 600; }
+    .bn-price-row.total span:last-child { font-family: inherit; font-size: 1.05rem; color: var(--gold2); }
+
+    /* Qty selector */
+    .bn-qty-row {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .bn-qty-label { font-size: .82rem; color: var(--muted); font-weight: 500; }
+    .qty-ctrl {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .qty-btn {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1.1rem;
+      transition: background .2s, color .2s;
+    }
+    .qty-btn:hover { background: var(--elevated); color: var(--gold2); }
+    .qty-val {
+      min-width: 40px;
+      text-align: center;
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--chrome);
+      padding: 0 8px;
+    }
+
+    /* Size picker */
+    .bn-size-row {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .bn-size-label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--silver);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bn-size-label .req { color: var(--gold2); }
+    .size-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .size-btn {
+      padding: 6px 14px;
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--sub);
+      background: var(--surface);
+      transition: all .2s;
+    }
+    .size-btn:hover { border-color: var(--gold); color: var(--gold2); }
+    .size-btn.active {
+      border-color: var(--gold2);
+      background: var(--gold-dim);
+      color: var(--gold2);
+      font-weight: 600;
+    }
+
+    /* Contact form (right) */
+    .bn-form-card {
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: var(--r);
+      overflow: hidden;
+      box-shadow: var(--sh);
+      position: sticky;
+      top: 84px;
+    }
+    .bn-form-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .bn-form-header h3 {
+      font-family: var(--f1);
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--chrome);
+    }
+    .bn-form-body { padding: 20px 24px; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--silver);
+      margin-bottom: 7px;
+      letter-spacing: .02em;
+    }
+    .form-group .req { color: var(--gold2); }
+    .input-wrap { position: relative; }
+    .input-wrap i.i-left {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: .8rem;
+      pointer-events: none;
+    }
+    .input-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 11px 14px 11px 38px;
+      font-size: .84rem;
+      color: var(--text);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .bn-form-body textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 11px 14px;
+      font-size: .84rem;
+      color: var(--text);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      resize: vertical;
+      min-height: 90px;
+      font-family: inherit;
+    }
+    .input-wrap input::placeholder, .bn-form-body textarea::placeholder { color: var(--muted); }
+    .input-wrap input:focus, .bn-form-body textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-dim);
+    }
+
+    /* Map row */
+    .map-or-text {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0 4px;
+    }
+    .map-or-text hr { border: none; border-top: 1px solid var(--border); }
+    .map-or-text span { font-size: .72rem; color: var(--muted); text-align: center; white-space: nowrap; }
+    .btn-map-loc {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px dashed var(--border2);
+      border-radius: var(--r2);
+      font-size: .82rem;
+      color: var(--sub);
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .btn-map-loc:hover { border-color: var(--gold); color: var(--gold2); background: var(--gold-dim); }
+
+    /* Error msg */
+    .err-msg {
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.2);
+      color: #fc8181;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: .8rem;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .err-msg.show { display: block; }
+
+    /* WhatsApp send button */
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #25d366;
+      color: #fff;
+      font-weight: 700;
+      font-size: .9rem;
+      padding: 14px 24px;
+      border-radius: var(--r2);
+      border: none;
+      cursor: pointer;
+      transition: background .2s, transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 16px rgba(37,211,102,.25);
+      width: 100%;
+    }
+    .btn-whatsapp:hover { background: #20b856; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(37,211,102,.35); }
+    .btn-whatsapp:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* Trust badges */
+    .trust-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .74rem;
+      color: var(--muted);
+    }
+    .trust-item i { color: var(--gold2); font-size: .8rem; }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, var(--elevated) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* Success state */
+    .buynow-success {
+      max-width: 480px;
+      margin: 80px auto;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .success-icon {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(37,211,102,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      color: #25d366;
+      margin: 0 auto 24px;
+      animation: popIn .5s var(--ease);
+    }
+    @keyframes popIn { 0%{transform:scale(0)} 70%{transform:scale(1.1)} 100%{transform:scale(1)} }
+    .buynow-success h2 {
+      font-family: var(--f1);
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--chrome);
+      margin-bottom: 10px;
+    }
+    .buynow-success p {
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    /* Not signed in state */
+    .signin-prompt {
+      max-width: 440px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .signin-prompt-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      color: var(--gold2);
+      margin: 0 auto 20px;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 560px) {
+      .buynow-hero { padding: 32px 0 24px; }
+      .bstep-line { width: 32px; }
+      .bstep-label { display: none; }
+      .bn-product-preview { flex-direction: column; }
+      .bn-product-img { width: 100%; height: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="mainNav">
+  <div class="navbar-inner">
+    <div class="nav-logo" onclick="window.location.href='../index.html'">
+      <img src="https://i.postimg.cc/Mp2M00B9/Asset-40-Photoroom.png" alt="MANTI jewel art" style="width:44px;height:44px;">
+    </div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="window.location.href='../index.html'">← Back to Shop</button>
+    </div>
+    <div style="flex:1"></div>
+    <div class="nav-actions">
+      <button class="nav-icon-btn" onclick="window.location.href='wishlist.html'" title="Wishlist">
+        <i class="fa fa-heart"></i>
+        <span class="nav-badge wish-badge-count" style="display:none">0</span>
+      </button>
+      <button class="nav-icon-btn" onclick="window.location.href='cart.html'" title="Cart">
+        <i class="fa fa-shopping-bag"></i>
+        <span class="nav-badge cart-badge-count" style="display:none">0</span>
+      </button>
+      <div id="navAuthArea">
+        <button class="nav-signin-btn" onclick="Auth.openModal()"><i class="fa fa-user"></i><span>Sign In</span></button>
+      </div>
+    </div>
+    <button class="nav-hamburger" onclick="document.getElementById('mobileDrawer').classList.add('show')"><i class="fa fa-bars"></i></button>
+  </div>
+</nav>
+
+<!-- Mobile Drawer -->
+<div class="mobile-nav-drawer" id="mobileDrawer">
+  <div class="mnd-overlay" onclick="document.getElementById('mobileDrawer').classList.remove('show')"></div>
+  <div class="mnd-panel">
+    <div class="mnd-header"><span class="mnd-logo">MANTI jewel art</span><button class="mnd-close" onclick="document.getElementById('mobileDrawer').classList.remove('show')"><i class="fa fa-xmark"></i></button></div>
+    <button class="mnd-link" onclick="window.location.href='../index.html'"><i class="fa fa-home"></i> Home</button>
+    <button class="mnd-link" onclick="window.location.href='cart.html'"><i class="fa fa-shopping-bag"></i> Cart</button>
+    <button class="mnd-link" onclick="window.location.href='wishlist.html'"><i class="fa fa-heart"></i> Wishlist</button>
+    <button class="mnd-link" onclick="window.location.href='profile.html'"><i class="fa fa-user"></i> Profile</button>
+  </div>
+</div>
+
+<!-- HERO HEADER -->
+<div class="buynow-hero">
+  <div class="buynow-hero-inner">
+    <div class="buynow-step-badge"><i class="fa fa-bolt"></i> Quick Buy</div>
+    <h1>Buy Now — <em>Confirm Order</em></h1>
+    <p>Skip the cart — submit your order directly and our team will review it shortly.</p>
+    <!-- Progress steps -->
+    <div class="buynow-steps">
+      <div class="bstep done">
+        <div class="bstep-num"><i class="fa fa-check" style="font-size:.65rem"></i></div>
+        <span class="bstep-label">Product</span>
+      </div>
+      <div class="bstep-line done"></div>
+      <div class="bstep active">
+        <div class="bstep-num">2</div>
+        <span class="bstep-label">Your Details</span>
+      </div>
+      <div class="bstep-line"></div>
+      <div class="bstep pending">
+        <div class="bstep-num">3</div>
+        <span class="bstep-label">Confirm</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Breadcrumb -->
+<div style="background:var(--ink);border-bottom:1px solid var(--border);padding:10px 0">
+  <div class="container" style="display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted)">
+    <a href="../index.html" style="color:var(--gold2);font-weight:500">Home</a>
+    <i class="fa fa-chevron-right" style="font-size:.6rem"></i>
+    <a id="breadcrumbProd" href="#" style="color:var(--sub)">Product</a>
+    <i class="fa fa-chevron-right" style="font-size:.6rem"></i>
+    <span style="color:var(--muted)">Buy Now</span>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="buynow-main">
+  <div id="buynowContent">
+    <div style="display:flex;align-items:center;justify-content:center;padding:80px 20px;gap:12px;flex-direction:column">
+      <div class="spinner"></div>
+      <p style="color:var(--muted);font-size:.85rem">Loading product details…</p>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-logo" style="display:flex;align-items:flex-end;gap:10px">
+          <img src="https://i.postimg.cc/Mp2M00B9/Asset-40-Photoroom.png" alt="MANTI jewel art" style="width:34px;height:34px;">
+          <span style="font-size:.88rem;color:var(--text);font-weight:600">Manti jewel art pvt ltd</span>
+        </div>
+        <p class="footer-brand-desc">Handcrafted jewellery for every occasion. BIS certified gold, silver, and custom pieces delivered across India.</p>
+        <div class="footer-socials">
+  <div class="footer-social" onclick="window.open('https://www.instagram.com/a_manties?igsh=N2ZuOTlmeDI4dTNu','_blank')">
+    <i class="fa-brands fa-instagram"></i>
+  </div>
+
+  <div class="footer-social" onclick="window.open('https://maps.app.goo.gl/KAVFfZJmjJvrWCsF6?g_st=aw','_blank')">
+    <i class="fa-solid fa-location-dot"></i>
+  </div>
+
+  <div class="footer-social" onclick="window.open('https://wa.me/919092727655','_blank')">
+    <i class="fa-brands fa-whatsapp"></i>
+  </div>
+</div>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <div class="footer-links">
+          <span class="footer-link" onclick="filterCat('gold')">Gold Jewellery</span>
+          <span class="footer-link" onclick="filterCat('silver')">Silver Jewellery</span>
+          <span class="footer-link" onclick="filterCat('custom')">Custom Orders</span>
+          <span class="footer-link" onclick="window.location.href='custom-order.html'" style="color:var(--gold2);font-weight:600">✨ Custom Order Form</span>
+          <span class="footer-link" onclick="scrollToProducts()">New Arrivals</span>
+        </div>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <div class="footer-links">
+          <span class="footer-link">Shipping Policy</span>
+          <span class="footer-link">Returns & Exchanges</span>
+          <span class="footer-link">Size Guide</span>
+          <span class="footer-link" onclick="window.open('https://wa.me/919092727655','_blank')">Contact Us</span>
+        </div>
+      </div>
+      <div>
+        <h4>Contact Us</h4>
+        <div class="footer-links footer-contact-list">
+          <span class="footer-link"><i class="fa fa-phone"></i> <a href="tel:+919092727655">+91 90927 27655</a></span>
+          <span class="footer-link"><i class="fa fa-envelope"></i> <a href="mailto:support@amanties.com">support@amanties.com</a></span>
+          <span class="footer-link"><i class="fa fa-location-dot"></i> No 12/189, PRV Complex, Mettupalayam Rd, Coimbatore 641047</span>
+          <span class="footer-link"><i class="fa fa-clock"></i> Mon - Sat: 10:00 AM - 8:00 PM</span>
+        </div>
+      </div>
+      <div>
+        <h4>Account</h4>
+        <div class="footer-links">
+          <span class="footer-link" onclick="Auth.openModal()">Sign In / Register</span>
+          <span class="footer-link" onclick="window.location.href='wishlist.html'">My Wishlist</span>
+          <span class="footer-link" onclick="goToCart()">My Cart</span>
+          <span class="footer-link" onclick="window.location.href='admin.html'">Admin Panel</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Manti Jewel Art Private Limited. All Rights Reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="Auth.closeModal()"><i class="fa fa-xmark"></i></button>
+    <div class="modal-logo"><img src="https://i.postimg.cc/Mp2M00B9/Asset-40-Photoroom.png" alt="MANTI jewel art" style="width:48px;height:48px;"></div>
+    <h2 class="modal-title" id="auth-modal-title">Welcome Back!</h2>
+    <p class="modal-sub" id="auth-modal-sub">Sign in to continue your purchase</p>
+    <div id="auth-err" class="err-msg"></div>
+    <button class="btn-google mb-12" id="auth-google-btn"><img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"/> Continue with Google</button>
+    <div class="auth-divider">or</div>
+    <form id="auth-form">
+      <div class="form-group" id="auth-name-row" style="display:none"><label>Full Name <span class="req">*</span></label><div class="input-wrap"><i class="fa fa-user i-left"></i><input type="text" id="auth-name" placeholder="Your name"/></div></div>
+      <div class="form-group"><label>Email <span class="req">*</span></label><div class="input-wrap"><i class="fa fa-envelope i-left"></i><input type="email" id="auth-email" placeholder="you@example.com"/></div></div>
+      <div class="form-group"><label>Password <span class="req">*</span></label><div class="input-wrap"><i class="fa fa-lock i-left"></i><input type="password" id="auth-password" placeholder="••••••••"/><button type="button" class="input-eye"><i class="fa fa-eye"></i></button></div></div>
+      <button type="submit" class="btn btn-primary full mt-12" id="auth-submit-btn">Sign In</button>
+    </form>
+    <p class="auth-switch"><span id="auth-toggle-prefix">Don't have an account? </span><a id="auth-toggle-link">Sign Up</a></p>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/cart.js"></script>
+
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav')?.classList.toggle('scrolled', window.scrollY > 10);
+});
+
+let product = null;
+let selectedSize = null;
+let quantity = 1;
+let currentUser = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  Auth.init(
+    u => { currentUser = u; Cart.listen(u.uid); Cart.loadWish(u.uid); renderNavUser(u); renderPage(); },
+    () => { currentUser = null; Cart.stop(); renderNavUser(null); renderPage(); }
+  );
+  Auth.setupModal();
+  Cart.loadWish(null);
+
+  const id = new URLSearchParams(window.location.search).get('id');
+  if (!id) { window.location.href = '../index.html'; return; }
+  loadProduct(id);
+});
+
+function renderNavUser(u) {
+  const a = document.getElementById('navAuthArea'); if (!a) return;
+  if (u) {
+    const init = (u.displayName || u.email || 'U').charAt(0).toUpperCase();
+    a.innerHTML = `<div class="nav-user-pill" onclick="window.location.href='profile.html'">
+      <div class="nav-user-avatar">${u.photoURL ? `<img src="${u.photoURL}"/>` : '<span style="font-size:.75rem;font-weight:700;color:#fff">' + init + '</span>'}</div>
+      <span>${esc((u.displayName || u.email || '').split(' ')[0].split('@')[0])}</span>
+    </div>`;
+  } else {
+    a.innerHTML = `<button class="nav-signin-btn" onclick="Auth.openModal()"><i class="fa fa-user"></i><span>Sign In</span></button>`;
+  }
+}
+
+async function loadProduct(id) {
+  try {
+    const snap = await db.collection('products').doc(id).get();
+    if (snap.exists) product = { id: snap.id, ...snap.data() };
+    else product = DEMO_PRODUCTS.find(p => p.id === id);
+  } catch (e) {
+    product = DEMO_PRODUCTS.find(p => p.id === id);
+  }
+
+  if (!product) {
+    document.getElementById('buynowContent').innerHTML = `
+      <div style="max-width:400px;margin:80px auto;text-align:center;padding:0 24px">
+        <i class="fa fa-gem" style="font-size:2.5rem;color:var(--muted);margin-bottom:16px;display:block"></i>
+        <h3 style="font-family:var(--f1);font-size:1.5rem;color:var(--chrome);margin-bottom:8px">Product Not Found</h3>
+        <p style="color:var(--muted);margin-bottom:24px">This product may have been removed or the link is invalid.</p>
+        <a href="collections.html" class="btn btn-primary"><i class="fa fa-gem"></i> Browse Collection</a>
+      </div>`;
+    return;
+  }
+
+  // Update breadcrumb
+  const bEl = document.getElementById('breadcrumbProd');
+  if (bEl) { bEl.textContent = product.name; bEl.href = `product.html?id=${encodeURIComponent(product.id)}`; }
+
+  document.title = `Buy Now: ${product.name} — MANTI jewel art`;
+  renderPage();
+}
+
+function calcPricing() {
+  const weight = product.weight || 1;
+  const goldRate = product.price || 0;  // per gram
+  const base = goldRate * weight;        // gold value
+  const makingPct = product.makingCharges || 0;
+  const making = base * makingPct / 100; // making based on gold value
+  const gst = product.gst || 0;
+  const gstAmt = base * gst / 100;      // gst on gold value
+  const unitTotal = base + making + gstAmt;
+  const grandTotal = unitTotal * quantity;
+  return { base, makingPct, making, gst, gstAmt, unitTotal, grandTotal };
+}
+
+function renderPage() {
+  if (!product) return;
+
+  // If not signed in — show sign-in prompt inside the main area
+  if (!currentUser) {
+    document.getElementById('buynowContent').innerHTML = `
+      <div class="signin-prompt">
+        <div class="signin-prompt-icon"><i class="fa fa-lock"></i></div>
+        <h2 style="font-family:var(--f1);font-size:1.9rem;font-weight:400;color:var(--chrome);margin-bottom:10px">Sign In to Continue</h2>
+        <p style="color:var(--muted);font-size:.9rem;line-height:1.7;margin-bottom:28px">
+          Please sign in to place your order. Your details will be used to personalise the WhatsApp message.
+        </p>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:12px" onclick="Auth.openModal(() => renderPage())">
+          <i class="fa fa-sign-in-alt"></i> Sign In to Buy Now
+        </button>
+        <a href="product.html?id=${encodeURIComponent(product.id)}" class="btn btn-outline" style="width:100%;justify-content:center">
+          <i class="fa fa-arrow-left"></i> Back to Product
+        </a>
+      </div>`;
+    return;
+  }
+
+  const pricing = calcPricing();
+  const inStock = product.inStock !== false;
+  const hasSizes = product.hasSizes && product.availableSizes?.length > 0;
+
+  document.getElementById('buynowContent').innerHTML = `
+  <div class="buynow-grid">
+
+    <!-- LEFT: Product details -->
+    <div class="bn-product-card">
+      <div class="bn-product-card-header">
+        <div class="step-circle">1</div>
+        <h3>Your Order</h3>
+      </div>
+
+      <div class="bn-product-preview">
+        <img class="bn-product-img" src="${esc(product.imageUrl)}" alt="${esc(product.name)}"
+          onerror="this.src='https://placehold.co/200x200/1e1e1e/666?text=No+Image'"/>
+        <div class="bn-product-info">
+          <p class="bn-product-cat">${esc(catLabel(product.category))}${product.purity ? ' · ' + esc(product.purity) : ''}${product.weight ? ' · ' + product.weight + 'g' : ''}</p>
+          <h3 class="bn-product-name">${esc(product.name)}</h3>
+          <p style="font-size:.78rem;color:var(--muted);margin:.25rem 0 8px;">Product ID: ${esc(product.productId||product.id)}</p>
+          ${!inStock ? '<span style="font-size:.76rem;color:#fc8181;font-weight:600;background:rgba(239,68,68,.1);padding:3px 10px;border-radius:5px;display:inline-block">Out of Stock</span>' : ''}
+          ${product.description ? `<p class="bn-product-meta" style="margin-top:6px;line-height:1.5">${esc(product.description).substring(0,120)}${product.description.length>120?'…':''}</p>` : ''}          <p class="bn-product-meta" style="margin-top:6px;line-height:1.3">Making ${pricing.makingPct}% (${formatPrice(pricing.making)}) <i class="fa fa-info-circle" title="For example, if the making charge is 10% and the gold in your necklace is worth Rs 10,000, the charge will be Rs 1,000." style="cursor:help;color:var(--silver3);font-size:.75rem;margin-left:4px;"></i> · GST ${pricing.gst}% (${formatPrice(pricing.gstAmt)})</p>          <a href="product.html?id=${encodeURIComponent(product.id)}" style="font-size:.76rem;color:var(--gold2);text-decoration:underline;margin-top:6px;display:inline-block">
+            <i class="fa fa-eye" style="font-size:.7rem"></i> View full details
+          </a>
+        </div>
+      </div>
+
+      <!-- Size selector (if product has sizes) -->
+      ${hasSizes ? `
+      <div class="bn-size-row">
+        <p class="bn-size-label">Select Size <span class="req">*</span></p>
+        <div class="size-options" id="sizeOptions">
+          ${(product.availableSizes || []).map(s => `<button class="size-btn ${selectedSize === s ? 'active' : ''}" data-size="${esc(s)}" onclick="selectSize('${esc(s)}')">${esc(s)}</button>`).join('')}
+        </div>
+        ${!selectedSize ? '<p style="font-size:.74rem;color:var(--gold2);margin-top:8px"><i class="fa fa-info-circle"></i> Please select a size to proceed</p>' : ''}
+      </div>` : ''}
+
+      <!-- Quantity -->
+      <div class="bn-qty-row">
+        <span class="bn-qty-label">Quantity</span>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <span class="qty-val" id="qtyDisplay">${quantity}</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Price breakdown -->
+      <div style="padding:16px 24px;border-top:1px solid var(--border)">
+        <p style="font-size:.8rem;font-weight:600;color:var(--silver);margin-bottom:10px;letter-spacing:.04em">PRICE BREAKDOWN</p>
+        <div class="bn-price-breakdown">
+          <div class="bn-price-row"><span>Base Price</span><span>${formatPrice(pricing.base)}</span></div>
+          <div class="bn-price-row"><span>Making Charges</span><span>${formatPrice(pricing.making)}</span></div>
+          <div class="bn-price-row"><span>GST (${pricing.gst}%)</span><span>${formatPrice(pricing.gstAmt)}</span></div>
+          ${quantity > 1 ? `<div class="bn-price-row"><span>Qty × ${quantity}</span><span>${formatPrice(pricing.unitTotal)} × ${quantity}</span></div>` : ''}
+          <div class="bn-price-row total"><span>Total Amount</span><span>${formatPrice(pricing.grandTotal)}</span></div>
+        </div>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="trust-row">
+        <div class="trust-item"><i class="fa fa-certificate"></i><span>BIS Certified</span></div>
+        <div class="trust-item"><i class="fa fa-truck"></i><span>Free Shipping</span></div>
+        <div class="trust-item"><i class="fa fa-rotate-left"></i><span>Easy Exchange</span></div>
+        <div class="trust-item"><i class="fa fa-shield-halved"></i><span>Secure Order</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Contact form -->
+    <div class="bn-form-card">
+      <div class="bn-form-header">
+        <div class="step-circle">2</div>
+        <h3>Delivery Details</h3>
+      </div>
+      <div class="bn-form-body">
+        <div class="form-group">
+          <label>Your Name <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fa fa-user i-left"></i>
+            <input type="text" id="bnName" placeholder="Full name" value="${esc(currentUser?.displayName || '')}"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Phone Number <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fa fa-phone i-left"></i>
+            <input type="tel" id="bnPhone" placeholder="+91 99999 99999"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Delivery Address <span class="req">*</span></label>
+          <button class="btn-map-loc" onclick="useCurrentLocation()">
+            <i class="fa fa-location-dot"></i> Use my current location (Google Maps)
+          </button>
+          <textarea id="bnAddress" placeholder="House no, Street, City, State, PIN code" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Order Note <small style="color:var(--muted);font-weight:400">(optional)</small></label>
+          <textarea id="bnNote" placeholder="Any special instructions, colour preference, gift message…" rows="2"></textarea>
+        </div>
+
+        <div id="bnErr" class="err-msg"></div>
+
+        <button class="btn-whatsapp" id="bnSendBtn" onclick="sendBuyNowOrder()" ${!inStock ? 'disabled' : ''}>
+          <i class="fa fa-check" style="font-size:1.2rem"></i>
+          ${inStock ? 'Confirm Order' : 'Item Out of Stock'}
+        </button>
+
+        <p style="text-align:center;font-size:.72rem;color:var(--muted);margin-top:10px">
+          <i class="fa fa-lock"></i> Your details are shared securely with our team.
+        </p>
+
+        <!-- Order summary mini -->
+        <div style="margin-top:16px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:.78rem;color:var(--muted)">1 item</span>
+            <span style="font-size:.78rem;color:var(--muted)">Shipping: <span style="color:#22c55e;font-weight:600">Free</span></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:.82rem;color:var(--silver);font-weight:600">Total to Pay</span>
+            <span id="grandTotalDisplay" style="font-size:1.2rem;color:var(--gold2);font-weight:600">${formatPrice(pricing.grandTotal)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+function selectSize(s) {
+  selectedSize = s;
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.toggle('active', b.dataset.size === s));
+  // Remove the "select a size" hint
+  const hint = document.querySelector('.bn-size-row p[style]');
+  if (hint) hint.remove();
+}
+
+function changeQty(delta) {
+  quantity = Math.max(1, Math.min(10, quantity + delta));
+  const display = document.getElementById('qtyDisplay');
+  if (display) display.textContent = quantity;
+  // Update totals
+  const pricing = calcPricing();
+  const grandDisplay = document.getElementById('grandTotalDisplay');
+  if (grandDisplay) grandDisplay.textContent = formatPrice(pricing.grandTotal);
+  // Refresh price breakdown rows
+  const rows = document.querySelectorAll('.bn-price-row');
+  if (rows.length >= 4) {
+    const totalRow = rows[rows.length - 1];
+    if (totalRow) totalRow.querySelector('span:last-child').textContent = formatPrice(pricing.grandTotal);
+  }
+}
+
+function useCurrentLocation() {
+  if (!navigator.geolocation) { showToast('Geolocation not supported by your browser.', 'err'); return; }
+  const btn = document.querySelector('.btn-map-loc');
+  if (btn) { btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Getting location…'; btn.disabled = true; }
+  
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+    const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    
+    try {
+      // Reverse geocode using OpenStreetMap Nominatim API
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      const data = await response.json();
+      
+      let addressText = '';
+      if (data.address) {
+        const a = data.address;
+        // Build address from components
+        const parts = [];
+        if (a.house_number) parts.push(a.house_number);
+        if (a.road) parts.push(a.road);
+        if (a.suburb || a.village) parts.push(a.suburb || a.village);
+        if (a.city || a.town) parts.push(a.city || a.town);
+        if (a.state) parts.push(a.state);
+        if (a.postcode) parts.push(a.postcode);
+        if (a.country) parts.push(a.country);
+        
+        addressText = parts.filter(Boolean).join(', ');
+      }
+      
+      // Fallback if address is empty
+      if (!addressText) {
+        addressText = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+      
+      // Add map link with marker
+      addressText += `\n\nView on map: ${mapUrl}`;
+      
+      const addr = document.getElementById('bnAddress');
+      if (addr) addr.value = addressText;
+      
+      showToast('Location added to address field 📍', 'success');
+      if (btn) { btn.innerHTML = '<i class="fa fa-check"></i> Location added'; btn.disabled = false; }
+    } catch (geocodeErr) {
+      // If reverse geocoding fails, still show coordinates with map link
+      const fallbackText = `${lat.toFixed(4)}, ${lng.toFixed(4)}\n\nView on map: ${mapUrl}`;
+      const addr = document.getElementById('bnAddress');
+      if (addr) addr.value = fallbackText;
+      
+      showToast('Location added (coordinates) 📍', 'success');
+      if (btn) { btn.innerHTML = '<i class="fa fa-check"></i> Location added'; btn.disabled = false; }
+    }
+  }, err => {
+    let errMsg = 'Could not access location. ';
+    if (err.code === 1) errMsg += 'Permission denied.';
+    else if (err.code === 2) errMsg += 'Location unavailable.';
+    else if (err.code === 3) errMsg += 'Request timed out.';
+    errMsg += ' Please enter address manually.';
+    
+    showToast(errMsg, 'err');
+    if (btn) { btn.innerHTML = '<i class="fa fa-location-dot"></i> Use my current location'; btn.disabled = false; }
+  });
+}
+
+async function sendBuyNowOrder() {
+  const name = document.getElementById('bnName')?.value.trim();
+  const phone = document.getElementById('bnPhone')?.value.trim();
+  const addr = document.getElementById('bnAddress')?.value.trim();
+  const note = document.getElementById('bnNote')?.value.trim();
+  const errEl = document.getElementById('bnErr');
+  errEl.classList.remove('show');
+
+  if (!name) { errEl.textContent = 'Please enter your name.'; errEl.classList.add('show'); return; }
+  if (!phone) { errEl.textContent = 'Please enter your phone number.'; errEl.classList.add('show'); return; }
+  const phoneDigits = phone.replace(/\D/g, '');
+  if (phoneDigits.length !== 10) { errEl.textContent = 'Enter a valid number.'; errEl.classList.add('show'); return; }
+  if (!addr) { errEl.textContent = 'Please enter your delivery address.'; errEl.classList.add('show'); return; }
+
+  const hasSizes = product.hasSizes && product.availableSizes?.length > 0;
+  if (hasSizes && !selectedSize) {
+    errEl.textContent = 'Please select a size above before placing the order.';
+    errEl.classList.add('show');
+    document.querySelector('.bn-size-row')?.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  const pricing = calcPricing();
+  const btn = document.getElementById('bnSendBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Confirming…'; }
+
+  const singleItem = [{
+    productId: product.id || product.productId || null,
+    docId: product.id || product.productId || null,
+    name: product.name,
+    category: product.category,
+    purity: product.purity || '',
+    weight: product.weight || 0,
+    imageUrl: product.imageUrl || '',
+    basePrice: pricing.base,
+    makingChargesPct: pricing.makingPct,
+    makingCharges: pricing.making,
+    gst: pricing.gst,
+    gstAmt: pricing.gstAmt,
+    unitTotal: pricing.unitTotal,
+    lineTotal: pricing.unitTotal * quantity,
+    price: pricing.unitTotal,
+    selectedSize: selectedSize || null,
+    quantity: quantity
+  }];
+
+  const fullAddr = note ? `${addr}\n\nNote: ${note}` : addr;
+  if (currentUser) {
+    await saveOrderHistory(currentUser, singleItem, pricing.grandTotal, fullAddr, phone, name, null, note);
+  }
+
+  setTimeout(() => {
+    document.getElementById('buynowContent').innerHTML = `
+      <div class="buynow-success">
+        <div class="success-icon"><i class="fa fa-check"></i></div>
+        <h2>Order Submitted!</h2>
+        <p>Your order for <strong style="color:var(--chrome)">${esc(product.name)}</strong> (${formatPrice(pricing.grandTotal)}) has been sent to our team.<br/>
+        We will contact you soon to confirm the details.</p>
+        <a href="../index.html" class="btn btn-primary" style="justify-content:center;margin-bottom:12px;width:100%">
+          <i class="fa fa-gem"></i> Continue Shopping
+        </a>
+        <a href="product.html?id=${encodeURIComponent(product.id)}" class="btn btn-outline" style="justify-content:center;width:100%">
+          <i class="fa fa-arrow-left"></i> Back to Product
+        </a>
+      </div>`;
+  }, 400);
+}
+
+window.selectSize = selectSize;
+window.changeQty = changeQty;
+window.useCurrentLocation = useCurrentLocation;
+window.sendBuyNowOrder = sendBuyNowOrder;
+</script>
+</body>
+</html>
+
+
+
+
+
+

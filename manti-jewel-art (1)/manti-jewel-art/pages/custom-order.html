@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Custom Order — MANTI jewel art</title>
+  <link rel="icon" href="https://i.postimg.cc/kg4L7Hw0/Asset-13-Photoroom-Photoroom.png" type="image/png" sizes="64x64" />
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/kg4L7Hw0/Asset-13-Photoroom-Photoroom.png" sizes="180x180" />
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Rajdhani:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <style>
+    .custom-hero {
+      background: var(--g3);
+      padding: 56px 0 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .custom-hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -60px;
+      width: 340px; height: 340px;
+      border-radius: 50%;
+      background: rgba(200,146,42,.08);
+    }
+    .custom-hero-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 32px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .custom-hero-icon {
+      width: 72px; height: 72px;
+      border-radius: 20px;
+      background: rgba(200,146,42,.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; color: var(--gold2);
+      margin: 0 auto 20px;
+    }
+    .custom-hero h1 {
+      font-family: var(--f1);
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      color: #fff; font-weight: 500;
+      margin-bottom: 12px; line-height: 1.2;
+    }
+    .custom-hero h1 em { font-style: italic; color: var(--gold2); }
+    .custom-hero p {
+      font-size: .98rem;
+      color: rgba(255,255,255,.7);
+      line-height: 1.7; max-width: 480px; margin: 0 auto;
+    }
+    .custom-form-section { padding: 56px 0 80px; }
+    .custom-form-wrap {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 32px;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 32px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .custom-form-wrap { grid-template-columns: 1fr; }
+      .custom-sidebar { display: none; }
+    }
+    @media (max-width: 600px) {
+      .custom-hero-inner { padding: 0 16px; }
+      .custom-form-wrap { padding: 0 16px; }
+    }
+    .custom-form-card {
+      background: #fff;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      box-shadow: var(--sh);
+      overflow: hidden;
+    }
+    .custom-form-card-header {
+      background: linear-gradient(135deg, var(--g2), var(--g3));
+      padding: 22px 28px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .custom-form-card-header i {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--gold2); flex-shrink: 0;
+    }
+    .custom-form-card-header h2 {
+      font-family: var(--f1); font-size: 1.2rem; font-weight: 500; color: #fff;
+    }
+    .custom-form-card-header p { font-size: .78rem; color: rgba(255,255,255,.65); margin-top: 2px; }
+    .custom-form-body { padding: 28px; }
+    .product-type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 480px) { .product-type-grid { grid-template-columns: repeat(2,1fr); } }
+    .ptype-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 14px 10px;
+      border: 2px solid var(--border);
+      border-radius: var(--r2); background: #fff;
+      cursor: pointer; transition: var(--tr);
+      font-family: var(--f2); font-size: .82rem; font-weight: 600; color: var(--sub);
+    }
+    .ptype-btn i { font-size: 1.3rem; color: var(--muted); transition: var(--tr); }
+    .ptype-btn:hover { border-color: var(--g); color: var(--g); }
+    .ptype-btn:hover i { color: var(--g); }
+    .ptype-btn.active { border-color: var(--g); background: var(--g); color: #fff; }
+    .ptype-btn.active i { color: #fff; }
+    .material-row { display: flex; gap: 12px; }
+    .mat-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 13px; border: 2px solid var(--border); border-radius: var(--r2);
+      cursor: pointer; transition: var(--tr);
+      font-family: var(--f2); font-size: .88rem; font-weight: 600; color: var(--sub);
+      background: #fff;
+    }
+    .mat-btn .dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .mat-btn.active-gold { border-color: var(--gold); background: rgba(200,146,42,.07); color: #7a5c0a; }
+    .mat-btn.active-silver { border-color: #9ca3af; background: rgba(156,163,175,.08); color: #374151; }
+    .success-screen {
+      display: none; text-align: center; padding: 48px 28px;
+    }
+    .success-screen.show { display: block; }
+    .success-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(37,211,102,.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: #25d366;
+      margin: 0 auto 20px;
+    }
+    .sidebar-card {
+      background: #fff;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      box-shadow: var(--sh);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .sidebar-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--f1); font-size: 1rem; font-weight: 500;
+    }
+    .sidebar-card-body { padding: 18px 20px; }
+    .step-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step-item:last-child { border-bottom: none; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--g); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem; font-weight: 700; flex-shrink: 0;
+    }
+    .step-txt span { display: block; font-size: .86rem; font-weight: 600; margin-bottom: 2px; }
+    .step-txt small { font-size: .76rem; color: var(--muted); }
+    .promo-codes-list { display: flex; flex-direction: column; gap: 8px; }
+    .promo-code-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg); border-radius: var(--r3); padding: 10px 14px;
+      border: 1px dashed var(--border);
+    }
+    .promo-code-item .code { font-size: .82rem; font-weight: 700; color: var(--g); letter-spacing: .06em; }
+    .promo-code-item .desc { font-size: .74rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div class="nav-logo" onclick="window.location.href='../index.html'">
+      <img src="https://i.postimg.cc/Mp2M00B9/Asset-40-Photoroom.png" alt="MANTI jewel art" style="width: 44px; height: 44px;">
+    </div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="window.location.href='../index.html'">← Back to Shop</button>
+    </div>
+    <div style="flex:1"></div>
+    <div class="nav-actions">
+      <button class="nav-icon-btn" onclick="window.location.href='wishlist.html'"><i class="fa fa-heart"></i><span class="nav-badge wish-badge-count" style="display:none">0</span></button>
+      <button class="nav-icon-btn" onclick="window.location.href='cart.html'"><i class="fa fa-shopping-bag"></i><span class="nav-badge cart-badge-count" style="display:none">0</span></button>
+      <div id="navAuthArea"><button class="nav-signin-btn" onclick="Auth.openModal()"><i class="fa fa-user"></i><span>Sign In</span></button></div>
+    </div>
+    <button class="nav-hamburger" onclick="document.getElementById('mobileDrawer').classList.add('show')"><i class="fa fa-bars"></i></button>
+  </div>
+</nav>
+
+<div class="mobile-nav-drawer" id="mobileDrawer">
+  <div class="mnd-overlay" onclick="document.getElementById('mobileDrawer').classList.remove('show')"></div>
+  <div class="mnd-panel">
+    <div class="mnd-header"><span class="mnd-logo">MANTI jewel art</span><button class="mnd-close" onclick="document.getElementById('mobileDrawer').classList.remove('show')"><i class="fa fa-xmark"></i></button></div>
+    <button class="mnd-link" onclick="window.location.href='../index.html'"><i class="fa fa-home"></i> Home</button>
+    <button class="mnd-link" onclick="window.location.href='cart.html'"><i class="fa fa-shopping-bag"></i> Cart</button>
+    <button class="mnd-link" onclick="window.location.href='wishlist.html'"><i class="fa fa-heart"></i> Wishlist</button>
+    <button class="mnd-link" onclick="window.location.href='profile.html'"><i class="fa fa-user"></i> Profile</button>
+  </div>
+</div>
+
+<!-- Breadcrumb -->
+<div style="background:#fff;border-bottom:1px solid var(--border);padding:12px 0">
+  <div class="container" style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted)">
+    <a href="../index.html" style="color:var(--g);font-weight:500">Home</a>
+    <i class="fa fa-chevron-right" style="font-size:.65rem"></i>
+    <span style="color:var(--text)">Custom Order</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="custom-hero">
+  <div class="custom-hero-inner">
+    <div class="custom-hero-icon"><i class="fa fa-wand-magic-sparkles"></i></div>
+    <h1>Your Dream Jewellery,<br/><em>Made to Order</em></h1>
+    <p>Tell us exactly what you want — we'll craft it by hand just for you. Custom rings, necklaces, bracelets and more.</p>
+  </div>
+</section>
+
+<!-- FORM SECTION -->
+<section class="custom-form-section">
+  <div class="custom-form-wrap">
+
+    <!-- LEFT: FORM CARD -->
+    <div class="custom-form-card">
+      <div class="custom-form-card-header">
+        <i class="fa fa-pen-nib"></i>
+        <div>
+          <h2>Tell Us What You Want</h2>
+          <p>Fill in the details and we'll get back to you on WhatsApp</p>
+        </div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon"><i class="fa-brands fa-whatsapp"></i></div>
+        <h2 style="font-family:var(--f1);font-size:1.6rem;margin-bottom:10px">Request Sent! 🎉</h2>
+        <p style="color:var(--muted);font-size:.92rem;max-width:360px;margin:0 auto 24px;line-height:1.65">Your custom order request has been sent to our team on WhatsApp. We'll reply within 2-4 hours.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="resetSuccess()"><i class="fa fa-plus"></i> New Request</button>
+          <a href="collections.html" class="btn btn-outline"><i class="fa fa-gem"></i> Browse Collection</a>
+        </div>
+      </div>
+
+      <!-- FORM BODY -->
+      <div class="custom-form-body" id="formBody">
+
+        <!-- Step 1: Product Type -->
+        <div style="margin-bottom:22px">
+          <label style="display:block;font-size:.8rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">
+            1 — What product do you want? <span style="color:var(--red)">*</span>
+          </label>
+          <div class="product-type-grid">
+            <button class="ptype-btn" data-type="Ring" onclick="selectType(this)"><i class="fa fa-ring"></i> Ring</button>
+            <button class="ptype-btn" data-type="Necklace" onclick="selectType(this)"><i class="fa fa-gem"></i> Necklace</button>
+            <button class="ptype-btn" data-type="Bracelet" onclick="selectType(this)"><i class="fa fa-link"></i> Bracelet</button>
+            <button class="ptype-btn" data-type="Earrings" onclick="selectType(this)"><i class="fa fa-star"></i> Earrings</button>
+            <button class="ptype-btn" data-type="Pendant" onclick="selectType(this)"><i class="fa fa-certificate"></i> Pendant</button>
+            <button class="ptype-btn" data-type="Other" onclick="selectType(this)"><i class="fa fa-ellipsis"></i> Other</button>
+          </div>
+          <input type="text" id="customTypeTxt" placeholder="e.g. Anklet, Nose ring, Waist chain…" style="margin-top:10px;width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--r3);font-size:.86rem;outline:none;display:none;transition:var(--tr)" onfocus="this.style.borderColor='var(--g)'" onblur="this.style.borderColor='var(--border)'"/>
+        </div>
+
+        <!-- Step 2: Material -->
+        <div style="margin-bottom:22px">
+          <label style="display:block;font-size:.8rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">
+            2 — Material <span style="color:var(--red)">*</span>
+          </label>
+          <div class="material-row">
+            <button class="mat-btn" id="mat-gold" onclick="selectMat('gold')">
+              <span class="dot" style="background:linear-gradient(135deg,#f5d98a,#c8922a)"></span> Gold
+            </button>
+            <button class="mat-btn" id="mat-silver" onclick="selectMat('silver')">
+              <span class="dot" style="background:linear-gradient(135deg,#e5e7eb,#9ca3af)"></span> Silver
+            </button>
+            <button class="mat-btn" id="mat-both" onclick="selectMat('both')">
+              <span class="dot" style="background:linear-gradient(135deg,#f5d98a,#9ca3af)"></span> Both / Not Sure
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Name on the product -->
+        <div class="form-group">
+          <label>3 — Name / Text to engrave on product <span style="color:var(--muted);font-weight:400;font-style:italic">(optional)</span></label>
+          <div class="input-wrap">
+            <i class="fa fa-pen i-left"></i>
+            <input type="text" id="engraveName" placeholder="e.g. Priya, Arjun & Priya, 12.06.2019…" maxlength="60"/>
+          </div>
+          <p style="font-size:.74rem;color:var(--muted);margin-top:5px"><i class="fa fa-info-circle"></i> Leave blank if no engraving needed</p>
+        </div>
+
+        <!-- Step 4: Description -->
+        <div class="form-group">
+          <label>4 — Describe what you want <span style="color:var(--red)">*</span></label>
+          <textarea id="reqDesc" rows="4" placeholder="Example: I want a gold ring with my name 'Priya' engraved, with a small heart on the side. Size 7. Traditional style with modern finish…" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--r3);font-size:.9rem;outline:none;transition:var(--tr);resize:vertical" onfocus="this.style.borderColor='var(--g)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          <p style="font-size:.74rem;color:var(--muted);margin-top:5px">The more detail you give, the better we can help you!</p>
+        </div>
+
+        <!-- Step 5: Budget -->
+        <div class="form-group">
+          <label>5 — Your budget range <span style="color:var(--muted);font-weight:400;font-style:italic">(optional)</span></label>
+          <select id="reqBudget" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--r3);font-size:.9rem;outline:none;background:#fff;color:var(--text);transition:var(--tr)" onfocus="this.style.borderColor='var(--g)'" onblur="this.style.borderColor='var(--border)'">
+            <option value="">Select a range…</option>
+            <option value="Under ₹2,000">Under ₹2,000</option>
+            <option value="₹2,000 – ₹5,000">₹2,000 – ₹5,000</option>
+            <option value="₹5,000 – ₹10,000">₹5,000 – ₹10,000</option>
+            <option value="₹10,000 – ₹25,000">₹10,000 – ₹25,000</option>
+            <option value="₹25,000 – ₹50,000">₹25,000 – ₹50,000</option>
+            <option value="Above ₹50,000">Above ₹50,000</option>
+            <option value="Flexible / Let us suggest">Flexible / Let us suggest</option>
+          </select>
+        </div>
+
+        <!-- Step 6: Your Details -->
+        <div style="margin-bottom:22px">
+          <label style="display:block;font-size:.8rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">
+            6 — Your details
+          </label>
+          <div class="form-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Your Name <span style="color:var(--red)">*</span></label>
+              <div class="input-wrap"><i class="fa fa-user i-left"></i><input type="text" id="reqName" placeholder="Your full name"/></div>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Phone / WhatsApp <span style="color:var(--red)">*</span></label>
+              <div class="input-wrap"><i class="fa fa-phone i-left"></i><input type="tel" id="reqPhone" placeholder="+91 99999 99999"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reference image note -->
+        <div style="background:var(--gl);border:1px solid rgba(26,107,69,.18);border-radius:var(--r2);padding:14px 18px;margin-bottom:22px;display:flex;gap:12px;align-items:flex-start">
+          <i class="fa fa-circle-info" style="color:var(--g);margin-top:2px;flex-shrink:0"></i>
+          <p style="font-size:.82rem;color:var(--g2);line-height:1.6">
+            <strong>Have a reference image?</strong> You can share it directly on WhatsApp after submitting this form. We'll ask for it in our reply.
+          </p>
+        </div>
+
+        <div id="reqErr" class="err-msg"></div>
+
+        <button class="btn-whatsapp full" style="padding:16px;font-size:.95rem" onclick="submitCustomOrder()">
+          <i class="fa-brands fa-whatsapp" style="font-size:1.3rem"></i> Send Custom Request on WhatsApp
+        </button>
+        <p style="text-align:center;font-size:.74rem;color:var(--muted);margin-top:10px">
+          <i class="fa fa-lock"></i> Your details are only shared with our team. We reply within 2–4 hours.
+        </p>
+      </div>
+    </div>
+
+    <!-- RIGHT: SIDEBAR -->
+    <aside class="custom-sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">How It Works</div>
+        <div class="sidebar-card-body">
+          <div class="step-item"><div class="step-num">1</div><div class="step-txt"><span>Fill the Form</span><small>Tell us what you want — product, material, design details</small></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-txt"><span>We Contact You</span><small>Our team replies on WhatsApp within 2–4 hours</small></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-txt"><span>Design & Confirm</span><small>We share a design sketch and confirm the final price</small></div></div>
+          <div class="step-item"><div class="step-num">4</div><div class="step-txt"><span>Crafted & Delivered</span><small>Your jewellery is handcrafted and shipped to you</small></div></div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-header">Why Custom Orders?</div>
+        <div class="sidebar-card-body" style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;gap:10px;align-items:flex-start"><i class="fa fa-check-circle" style="color:var(--g);margin-top:2px;flex-shrink:0"></i><p style="font-size:.84rem;color:var(--sub)">Made exactly to your specifications</p></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><i class="fa fa-check-circle" style="color:var(--g);margin-top:2px;flex-shrink:0"></i><p style="font-size:.84rem;color:var(--sub)">Personalised engravings & names</p></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><i class="fa fa-check-circle" style="color:var(--g);margin-top:2px;flex-shrink:0"></i><p style="font-size:.84rem;color:var(--sub)">Perfect gift for birthdays, weddings & anniversaries</p></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><i class="fa fa-check-circle" style="color:var(--g);margin-top:2px;flex-shrink:0"></i><p style="font-size:.84rem;color:var(--sub)">BIS certified gold & sterling silver</p></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><i class="fa fa-check-circle" style="color:var(--g);margin-top:2px;flex-shrink:0"></i><p style="font-size:.84rem;color:var(--sub)">Delivered across India with free shipping</p></div>
+        </div>
+      </div>
+
+      <!-- <div class="sidebar-card">
+        <div class="sidebar-card-header">Promo Codes</div>
+        <div class="sidebar-card-body">
+          <div class="promo-codes-list">
+            <div class="promo-code-item"><span class="code">LUXE20</span><span class="desc">20% off any order</span></div>
+            <div class="promo-code-item"><span class="code">SILVER10</span><span class="desc">10% off silver items</span></div>
+            <div class="promo-code-item"><span class="code">GOLD15</span><span class="desc">15% off gold items</span></div>
+          </div>
+          <p style="font-size:.74rem;color:var(--muted);margin-top:10px">Mention the code when placing your order on WhatsApp!</p>
+        </div>
+      </div> -->
+
+      <div style="background:var(--g3);border-radius:var(--r);padding:22px;text-align:center">
+        <i class="fa-brands fa-whatsapp" style="font-size:2rem;color:#25d366;display:block;margin-bottom:10px"></i>
+        <p style="color:#fff;font-size:.9rem;font-weight:600;margin-bottom:6px">Talk to us directly</p>
+        <p style="color:rgba(255,255,255,.6);font-size:.78rem;margin-bottom:16px">Have questions before ordering? Chat with our team.</p>
+        <button class="btn-whatsapp" style="font-size:.84rem;padding:11px 20px" onclick="window.open('https://wa.me/'+WHATSAPP_NUMBER,'_blank')">
+          <i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+        </button>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-logo" style="display:flex;align-items:flex-end;gap:10px">
+          <img src="https://i.postimg.cc/Mp2M00B9/Asset-40-Photoroom.png" alt="MANTI jewel art" style="width:34px;height:34px;">
+          <span style="font-size:.88rem;color:var(--text);font-weight:600">Manti jewel art pvt ltd</span>
+        </div>
+        <p class="footer-brand-desc">Handcrafted jewellery for every occasion. BIS certified gold, silver, and custom pieces delivered across India.</p>
+        <div class="footer-socials">
+  <div class="footer-social" onclick="window.open('https://www.instagram.com/a_manties?igsh=N2ZuOTlmeDI4dTNu','_blank')">
+    <i class="fa-brands fa-instagram"></i>
+  </div>
+
+  <div class="footer-social" onclick="window.open('https://maps.app.goo.gl/KAVFfZJmjJvrWCsF6?g_st=aw','_blank')">
+    <i class="fa-solid fa-location-dot"></i>
+  </div>
+
+  <div class="footer-social" onclick="window.open('https://wa.me/919092727655','_blank')">
+    <i class="fa-brands fa-whatsapp"></i>
+  </div>
+</div>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <div class="footer-links">
+          <span class="footer-link" onclick="filterCat('gold')">Gold Jewellery</span>
+          <span class="footer-link" onclick="filterCat('silver')">Silver Jewellery</span>
+          <span class="footer-link" onclick="filterCat('custom')">Custom Orders</span>
+          <span class="footer-link" onclick="window.location.href='custom-order.html'" style="color:var(--gold2);font-weight:600">✨ Custom Order Form</span>
+          <span class="footer-link" onclick="scrollToProducts()">New Arrivals</span>
+        </div>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <div class="footer-links">
+          <span class="footer-link">Shipping Policy</span>
+          <span class="footer-link">Returns & Exchanges</span>
+          <span class="footer-link">Size Guide</span>
+          <span class="footer-link" onclick="window.open('https://wa.me/919092727655','_blank')">Contact Us</span>
+        </div>
+      </div>
+      <div>
+        <h4>Contact Us</h4>
+        <div class="footer-links footer-contact-list">
+          <span class="footer-link"><i class="fa fa-phone"></i> <a href="tel:+919092727655">+91 90927 27655</a></span>
+          <span class="footer-link"><i class="fa fa-envelope"></i> <a href="mailto:support@amanties.com">support@amanties.com</a></span>
+          <span class="footer-link"><i class="fa fa-location-dot"></i> No 12/189, PRV Complex, Mettupalayam Rd, Coimbatore 641047</span>
+          <span class="footer-link"><i class="fa fa-clock"></i> Mon - Sat: 10:00 AM - 8:00 PM</span>
+        </div>
+      </div>
+      <div>
+        <h4>Account</h4>
+        <div class="footer-links">
+          <span class="footer-link" onclick="Auth.openModal()">Sign In / Register</span>
+          <span class="footer-link" onclick="window.location.href='wishlist.html'">My Wishlist</span>
+          <span class="footer-link" onclick="goToCart()">My Cart</span>
+          <span class="footer-link" onclick="window.location.href='admin.html'">Admin Panel</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Manti Jewel Art Private Limited. All Rights Reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="Auth.closeModal()"><i class="fa fa-xmark"></i></button>
+    <h2 class="modal-title" id="auth-modal-title">Welcome Back!</h2>
+    <p class="modal-sub" id="auth-modal-sub">Sign in to your account</p>
+    <div id="auth-err" class="err-msg"></div>
+    <button class="btn-google mb-12" id="auth-google-btn"><img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"/> Continue with Google</button>
+    <div class="auth-divider">or</div>
+    <form id="auth-form">
+      <div class="form-group" id="auth-name-row" style="display:none"><label>Full Name</label><div class="input-wrap"><i class="fa fa-user i-left"></i><input type="text" id="auth-name" placeholder="Your name"/></div></div>
+      <div class="form-group"><label>Email</label><div class="input-wrap"><i class="fa fa-envelope i-left"></i><input type="email" id="auth-email" placeholder="you@example.com"/></div></div>
+      <div class="form-group"><label>Password</label><div class="input-wrap"><i class="fa fa-lock i-left"></i><input type="password" id="auth-password" placeholder="••••••••"/><button type="button" class="input-eye"><i class="fa fa-eye"></i></button></div></div>
+      <button type="submit" class="btn btn-primary full mt-12" id="auth-submit-btn">Sign In</button>
+    </form>
+    <p class="auth-switch"><span id="auth-toggle-prefix">Don't have an account? </span><a id="auth-toggle-link">Sign Up</a></p>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/cart.js"></script>
+<script>
+// ── State ──────────────────────────────────────────────────────
+let selectedType = '', selectedMaterial = '';
+
+document.addEventListener('DOMContentLoaded', () => {
+  Auth.init(
+    u => { Cart.listen(u.uid); Cart.loadWish(u.uid); renderNavUser(u); document.getElementById('reqName').value = u.displayName || ''; },
+    () => { Cart.stop(); renderNavUser(null); }
+  );
+  Auth.setupModal();
+  Cart.init(() => {});
+  Cart.loadWish(null);
+});
+
+function renderNavUser(u) {
+  const a = document.getElementById('navAuthArea'); if (!a) return;
+  if (u) {
+    const i = (u.displayName || u.email || 'U').charAt(0).toUpperCase();
+    a.innerHTML = `<div class="nav-user-pill" onclick="window.location.href='profile.html'">
+      <div class="nav-user-avatar">${u.photoURL ? `<img src="${u.photoURL}"/>` : '<span style="font-size:.75rem;font-weight:700;color:#fff">' + i + '</span>'}</div>
+      <span>${esc((u.displayName || u.email || '').split(' ')[0].split('@')[0])}</span>
+    </div>`;
+  } else {
+    a.innerHTML = `<button class="nav-signin-btn" onclick="Auth.openModal()"><i class="fa fa-user"></i><span>Sign In</span></button>`;
+  }
+}
+
+// ── Type selection ──────────────────────────────────────────────
+function selectType(btn) {
+  document.querySelectorAll('.ptype-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedType = btn.dataset.type;
+  const custom = document.getElementById('customTypeTxt');
+  if (selectedType === 'Other') {
+    custom.style.display = 'block';
+    custom.focus();
+  } else {
+    custom.style.display = 'none';
+  }
+}
+
+// ── Material selection ─────────────────────────────────────────
+function selectMat(mat) {
+  selectedMaterial = mat;
+  document.getElementById('mat-gold').className   = 'mat-btn' + (mat === 'gold'   ? ' active-gold'   : '');
+  document.getElementById('mat-silver').className = 'mat-btn' + (mat === 'silver' ? ' active-silver' : '');
+  document.getElementById('mat-both').className   = 'mat-btn' + (mat === 'both'   ? ' active-silver' : '');
+}
+
+// ── Submit ─────────────────────────────────────────────────────
+function submitCustomOrder() {
+  const errEl = document.getElementById('reqErr');
+  errEl.classList.remove('show');
+
+  // Get values
+  let productType = selectedType;
+  if (productType === 'Other') {
+    productType = document.getElementById('customTypeTxt').value.trim() || 'Other';
+  }
+  const engrave   = document.getElementById('engraveName').value.trim();
+  const desc      = document.getElementById('reqDesc').value.trim();
+  const budget    = document.getElementById('reqBudget').value;
+  const name      = document.getElementById('reqName').value.trim();
+  const phone     = document.getElementById('reqPhone').value.trim();
+
+  // Validate
+  if (!productType) { errEl.textContent = 'Please select a product type.'; errEl.classList.add('show'); return; }
+  if (!selectedMaterial) { errEl.textContent = 'Please select a material (Gold / Silver).'; errEl.classList.add('show'); return; }
+  if (!desc) { errEl.textContent = 'Please describe what you want.'; errEl.classList.add('show'); return; }
+  if (!name) { errEl.textContent = 'Please enter your name.'; errEl.classList.add('show'); return; }
+  if (!phone) { errEl.textContent = 'Please enter your phone number.'; errEl.classList.add('show'); return; }
+
+  // Build WhatsApp message
+  const matLabel = { gold: 'Gold', silver: 'Silver', both: 'Gold & Silver / Not Sure' }[selectedMaterial] || selectedMaterial;
+  let msg = `✨ *MANTI jewel art — Custom Order Request*\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `👤 *Name:* ${name}\n`;
+  msg += `📞 *Phone:* ${phone}\n\n`;
+  msg += `🛍️ *Product Type:* ${productType}\n`;
+  msg += `💎 *Material:* ${matLabel}\n`;
+  if (engrave) msg += `✍️ *Engraving / Name:* ${engrave}\n`;
+  msg += `\n📝 *Description:*\n${desc}\n`;
+  if (budget) msg += `\n💰 *Budget:* ${budget}\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `Please let me know if this is possible and the estimated price. Thank you! 🙏\n`;
+  msg += `\n_Sent via MANTI jewel art Custom Order Form_`;
+
+  const num = window.WHATSAPP_NUMBER || '919092727655';
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+
+  // Save to Firestore (optional log)
+  try {
+    db.collection('custom_orders').add({
+      customerName: name, phone, productType, material: matLabel,
+      engraveName: engrave || null, description: desc, budget: budget || null,
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) { /* silent, not critical */ }
+
+  // Show success
+  document.getElementById('formBody').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetSuccess() {
+  selectedType = ''; selectedMaterial = '';
+  document.querySelectorAll('.ptype-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mat-gold').className = document.getElementById('mat-silver').className = document.getElementById('mat-both').className = 'mat-btn';
+  ['engraveName','reqDesc','reqName','reqPhone'].forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
+  document.getElementById('reqBudget').value = '';
+  document.getElementById('customTypeTxt').style.display = 'none';
+  document.getElementById('reqErr').classList.remove('show');
+  document.getElementById('formBody').style.display = 'block';
+  document.getElementById('successScreen').classList.remove('show');
+}
+
+window.selectType = selectType;
+window.selectMat = selectMat;
+window.submitCustomOrder = submitCustomOrder;
+window.resetSuccess = resetSuccess;
+</script>
+</body>
+</html>
+
+
+
+
+
+

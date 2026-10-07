@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Wishlist — MANTI jewel art</title>
+  <link rel="icon" href="https://i.postimg.cc/kg4L7Hw0/Asset-13-Photoroom-Photoroom.png" type="image/png" sizes="64x64" />
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/kg4L7Hw0/Asset-13-Photoroom-Photoroom.png" sizes="180x180" />
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Rajdhani:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div class="nav-logo" onclick="window.location.href='../index.html'"><img src="https://i.postimg.cc/Mp2M00B9/Asset-40-Photoroom.png" alt="MANTI jewel art" style="width: 44px; height: 44px;"></div>
+    <div style="flex:1"></div>
+    <div class="nav-actions">
+      <button class="nav-icon-btn" onclick="window.location.href='cart.html'"><i class="fa fa-shopping-bag"></i><span class="nav-badge cart-badge-count" style="display:none">0</span></button>
+      <div id="navAuthArea"><button class="nav-signin-btn" onclick="Auth.openModal()"><i class="fa fa-user"></i><span>Sign In</span></button></div>
+    </div>
+  </div>
+</nav>
+<div style="background:#fff;border-bottom:1px solid var(--border);padding:12px 0"><div class="container" style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted)"><a href="../index.html" style="color:var(--g);font-weight:500">Home</a><i class="fa fa-chevron-right" style="font-size:.65rem"></i><span style="color:var(--text)">Wishlist</span></div></div>
+<main>
+  <section class="wish-page">
+    <div class="container">
+      <div class="section-hdr-row">
+        <div class="section-hdr"><span class="tag">Saved Items</span><h2>My Wishlist <span id="wishCount" style="font-size:1.2rem;color:var(--muted);font-family:var(--f2);font-weight:400"></span></h2></div>
+        <a href="collections.html" class="btn btn-outline btn-sm"><i class="fa fa-gem"></i> Browse More</a>
+      </div>
+      <div class="wish-grid" id="wishGrid"><div class="loading-state" style="grid-column:1/-1"><div class="spinner"></div></div></div>
+    </div>
+  </section>
+</main>
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-logo" style="display:flex;align-items:flex-end;gap:10px">
+          <img src="https://i.postimg.cc/Mp2M00B9/Asset-40-Photoroom.png" alt="MANTI jewel art" style="width:34px;height:34px;">
+          <span style="font-size:.88rem;color:var(--text);font-weight:600">Manti jewel art pvt ltd</span>
+        </div>
+        <p class="footer-brand-desc">Handcrafted jewellery for every occasion. BIS certified gold, silver, and custom pieces delivered across India.</p>
+        <div class="footer-socials">
+  <div class="footer-social" onclick="window.open('https://www.instagram.com/a_manties?igsh=N2ZuOTlmeDI4dTNu','_blank')">
+    <i class="fa-brands fa-instagram"></i>
+  </div>
+
+  <div class="footer-social" onclick="window.open('https://maps.app.goo.gl/KAVFfZJmjJvrWCsF6?g_st=aw','_blank')">
+    <i class="fa-solid fa-location-dot"></i>
+  </div>
+
+  <div class="footer-social" onclick="window.open('https://wa.me/919092727655','_blank')">
+    <i class="fa-brands fa-whatsapp"></i>
+  </div>
+</div>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <div class="footer-links">
+          <span class="footer-link" onclick="filterCat('gold')">Gold Jewellery</span>
+          <span class="footer-link" onclick="filterCat('silver')">Silver Jewellery</span>
+          <span class="footer-link" onclick="filterCat('custom')">Custom Orders</span>
+          <span class="footer-link" onclick="window.location.href='custom-order.html'" style="color:var(--gold2);font-weight:600">✨ Custom Order Form</span>
+          <span class="footer-link" onclick="scrollToProducts()">New Arrivals</span>
+        </div>
+      </div>
+      <div>
+        <h4>Help</h4>
+        <div class="footer-links">
+          <span class="footer-link">Shipping Policy</span>
+          <span class="footer-link">Returns & Exchanges</span>
+          <span class="footer-link">Size Guide</span>
+          <span class="footer-link" onclick="window.open('https://wa.me/919092727655','_blank')">Contact Us</span>
+        </div>
+      </div>
+      <div>
+        <h4>Contact Us</h4>
+        <div class="footer-links footer-contact-list">
+          <span class="footer-link"><i class="fa fa-phone"></i> <a href="tel:+919092727655">+91 90927 27655</a></span>
+          <span class="footer-link"><i class="fa fa-envelope"></i> <a href="mailto:support@amanties.com">support@amanties.com</a></span>
+          <span class="footer-link"><i class="fa fa-location-dot"></i> No 12/189, PRV Complex, Mettupalayam Rd, Coimbatore 641047</span>
+          <span class="footer-link"><i class="fa fa-clock"></i> Mon - Sat: 10:00 AM - 8:00 PM</span>
+        </div>
+      </div>
+      <div>
+        <h4>Account</h4>
+        <div class="footer-links">
+          <span class="footer-link" onclick="Auth.openModal()">Sign In / Register</span>
+          <span class="footer-link" onclick="window.location.href='wishlist.html'">My Wishlist</span>
+          <span class="footer-link" onclick="goToCart()">My Cart</span>
+          <span class="footer-link" onclick="window.location.href='admin.html'">Admin Panel</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Manti Jewel Art Private Limited. All Rights Reserved.</span>
+    </div>
+  </div>
+</footer>
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box"><button class="modal-close" onclick="Auth.closeModal()"><i class="fa fa-xmark"></i></button><h2 class="modal-title" id="auth-modal-title">Welcome Back!</h2><p class="modal-sub" id="auth-modal-sub">Sign in to your account</p><div id="auth-err" class="err-msg"></div><button class="btn-google mb-12" id="auth-google-btn"><img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"/> Continue with Google</button><div class="auth-divider">or</div><form id="auth-form"><div class="form-group" id="auth-name-row" style="display:none"><label>Full Name</label><div class="input-wrap"><i class="fa fa-user i-left"></i><input type="text" id="auth-name" placeholder="Your name"/></div></div><div class="form-group"><label>Email</label><div class="input-wrap"><i class="fa fa-envelope i-left"></i><input type="email" id="auth-email" placeholder="you@example.com"/></div></div><div class="form-group"><label>Password</label><div class="input-wrap"><i class="fa fa-lock i-left"></i><input type="password" id="auth-password" placeholder="••••••••"/><button type="button" class="input-eye"><i class="fa fa-eye"></i></button></div></div><button type="submit" class="btn btn-primary full mt-12" id="auth-submit-btn">Sign In</button></form><p class="auth-switch"><span id="auth-toggle-prefix">Don't have an account? </span><a id="auth-toggle-link">Sign Up</a></p></div>
+</div>
+<div id="toast-container"></div>
+<script src="../js/firebase-config.js"></script><script src="../js/utils.js"></script><script src="../js/auth.js"></script><script src="../js/cart.js"></script>
+<script>
+let currentUser=null;
+document.addEventListener('DOMContentLoaded',()=>{
+  Auth.init(u=>{currentUser=u;Cart.listen(u.uid);Cart.loadWish(u.uid);renderNavUser(u);loadWishlist();},()=>{currentUser=null;renderNavUser(null);loadWishlist();});
+  Auth.setupModal(); Cart.loadWish(null);
+});
+function renderNavUser(u){const a=document.getElementById('navAuthArea');if(!a)return;if(u){const i=(u.displayName||u.email||'U').charAt(0).toUpperCase();a.innerHTML=`<div class="nav-user-pill" onclick="window.location.href='profile.html'"><div class="nav-user-avatar">${u.photoURL?`<img src="${u.photoURL}"/>`:'<span style="font-size:.75rem;font-weight:700;color:#fff">'+i+'</span>'}</div><span>${esc((u.displayName||u.email||'').split(' ')[0].split('@')[0])}</span></div>`;}else{a.innerHTML=`<button class="nav-signin-btn" onclick="Auth.openModal()"><i class="fa fa-user"></i><span>Sign In</span></button>`;}}
+async function loadWishlist(){
+  const grid=document.getElementById('wishGrid'),cEl=document.getElementById('wishCount');
+  if(!currentUser){grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><i class="fa fa-heart"></i><h3>Sign in to see your wishlist</h3><p>Saved items will appear here.</p><button class="btn btn-primary mt-16" onclick="Auth.openModal()">Sign In</button></div>`;return;}
+  try{
+    const items=await Cart.getWishItems(currentUser.uid);
+    if(cEl) cEl.textContent=`(${items.length})`;
+    if(!items.length){grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><i class="fa fa-heart"></i><h3>Your wishlist is empty</h3><p>Browse our collection and tap the heart to save items.</p><a href="collections.html" class="btn btn-primary mt-16"><i class="fa fa-gem"></i> Browse Collection</a></div>`;return;}
+    grid.innerHTML=items.map(p=>`
+      <div class="pcard" onclick="window.location.href='product.html?id=${esc(p.productId||p.id)}'">
+        <div class="pcard-img"><img src="${esc(p.imageUrl)}" alt="${esc(p.name)}" onerror="this.src='https://placehold.co/400x400/f5f3f0/999'"/>
+          <button class="pcard-wish wished" onclick="event.stopPropagation();removeWish('${esc(p.productId||p.id)}')"><i class="fas fa-heart"></i></button></div>
+        <div class="pcard-body">
+          <p class="pcard-cat">${esc(catLabel(p.category))} · ${p.purity?esc(p.purity):'Purity N/A'}</p>
+          <p class="pcard-id" style="font-size:.76rem;color:var(--muted);margin:.2rem 0">Product ID: ${esc(p.productId||p.id)}</p>
+          <h3 class="pcard-name">${esc(p.name)}</h3>
+          <div class="pcard-footer"><span class="pcard-price">${formatPrice(p.price)}</span>
+            <button class="pcard-add" onclick="event.stopPropagation();window.location.href='product.html?id=${esc(p.productId||p.id)}'"><i class="fa fa-eye"></i> View</button></div>
+        </div>
+      </div>`).join('');
+  }catch(e){grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><i class="fa fa-gem"></i><p>Failed to load wishlist.</p></div>`;}
+}
+async function removeWish(id){await Cart.removeWish(currentUser?.uid,id);showToast('Removed from wishlist');loadWishlist();}
+window.removeWish=removeWish;
+</script>
+</body>
+</html>
+
+
+
+
+
+
