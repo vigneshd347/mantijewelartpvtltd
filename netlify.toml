@@ -1,0 +1,3 @@
+[build]
+  # The static site lives in a nested folder; publish it as the site root.
+  publish = "manti-jewel-art (1)/manti-jewel-art"
